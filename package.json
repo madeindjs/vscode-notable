@@ -16,10 +16,21 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "md-tags.helloWorld",
-				"title": "Hello World"
+				"command": "md-tags.showTags",
+				"title": "Show all tags"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "resourceLangId == md",
+					"command": "md-tags.showTags",
+					"title": "Show all tags",
+					"alt": "markdown.showPreviewToSide",
+					"group": "navigation"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

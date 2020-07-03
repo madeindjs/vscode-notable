@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { workspace, ExtensionContext, commands, window, ProgressLocation } from 'vscode';
 
 import { promises } from 'fs';
 import { join, extname } from 'path'
@@ -23,7 +23,7 @@ async function walk(directory: string, filepaths: string[] = []): Promise<string
 }
 
 async function getMarkdownTags(path: string): Promise<string[]> {
-	console.log(`getMarkdownTags on ${path}`)
+	// console.log(`getMarkdownTags on ${path}`)
 	const content = await promises.readFile(path, { encoding: 'utf8' });
 	const { data } = matter(content);
 
@@ -34,12 +34,12 @@ async function getMarkdownTags(path: string): Promise<string[]> {
 }
 
 async function getTags(): Promise<string[]> {
-	if (vscode.workspace.workspaceFolders === undefined) {
+	if (workspace.workspaceFolders === undefined) {
 		return [];
 	}
 	const tags: string[] = []
 
-	for (const folder of vscode.workspace.workspaceFolders) {
+	for (const folder of workspace.workspaceFolders) {
 		console.log(`Start search tags on ${folder.uri}`)
 		const paths = await walk(folder.uri.path);
 		const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)))
@@ -53,10 +53,9 @@ async function getTags(): Promise<string[]> {
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	console.log('Loaded')
+export async function activate(context: ExtensionContext) {
+	// console.log('Loaded')
 
-	getTags().then(console.log)
 
 
 
@@ -66,14 +65,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// // The command has been defined in the package.json file
 	// // Now provide the implementation of the command with registerCommand
 	// // The commandId parameter must match the command field in package.json
-	// let disposable = vscode.commands.registerCommand('md-tags.helloWorld', () => {
-	// 	// The code you place here will be executed every time your command is executed
+	let disposable = commands.registerCommand('md-tags.showTags', async () => {
 
-	// 	// Display a message box to the user
-	// 	vscode.window.showInformationMessage('Hello World from md-tags!');
-	// });
 
-	// context.subscriptions.push(disposable);
+		const tags = await getTags();
+
+
+		// 	// The code you place here will be executed every time your command is executed
+
+		// 	// Display a message box to the user
+		window.showInformationMessage(`You have theses tags: ${tags}`);
+	});
+
+	context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
