@@ -1,10 +1,19 @@
-import { workspace, ExtensionContext, commands, window, ProgressLocation } from 'vscode';
+import { workspace, ExtensionContext, commands, window, ProgressLocation, Progress } from 'vscode';
 
 import { promises } from 'fs';
 import { join, extname } from 'path'
 import * as matter from 'gray-matter';
 
 const MD_EXTENSIONS = ['.md', '.markdown']
+
+async function getProgress(title: string): Promise<Progress<any>> {
+
+    return await new Promise((resolve, reject) => {
+        window.withProgress({ location: ProgressLocation.Notification, title, cancellable: false }, async (progress) => {
+            return resolve(progress)
+        });
+    })
+}
 
 async function walk(directory: string, filepaths: string[] = []): Promise<string[]> {
     const files = await promises.readdir(directory);
@@ -40,9 +49,15 @@ async function getTags(): Promise<string[]> {
     const tags: string[] = []
 
     for (const folder of workspace.workspaceFolders) {
+        const progress = await getProgress(`Search tags on ${folder.uri}`)
+
+
+
         console.log(`Start search tags on ${folder.uri}`)
         const paths = await walk(folder.uri.path);
-        const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)))
+        const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)));
+
+        progress.report(100);
 
         arrayTags.forEach(t => tags.push(...t))
     }
@@ -67,20 +82,11 @@ export async function activate(context: ExtensionContext) {
     // // The commandId parameter must match the command field in package.json
     let disposable = commands.registerCommand('md-tags.showTags', () => {
 
-        window.withProgress({
-            location: ProgressLocation.Notification,
-            title: "Parsing markdown files",
-            cancellable: false,
-        }, (progress, token) => {
-            // progress.report({ increment: 0 })
-            return getTags()
-                .then(tags => {
-                    progress.report({ increment: 100 })
-                    window.showInformationMessage(`You have theses tags: ${tags}`)
-                })
-                .catch((e) => window.showErrorMessage(`Error during fetching tags: ${e}`))
-                .finally(() => progress.report({ increment: 100 }))
-        });
+
+        return getTags()
+            .then(tags => window.showInformationMessage(`You have theses tags: ${tags}`))
+            .catch((e) => window.showErrorMessage(`Error during fetching tags: ${e}`))
+
     });
 
     context.subscriptions.push(disposable);
