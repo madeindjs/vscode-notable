@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, commands, window, ProgressLocation, Progress } from 'vscode';
+import { workspace, ExtensionContext, commands, window, ProgressLocation, Progress, languages, TextDocument, Position, CompletionItem, CompletionItemKind } from 'vscode';
 
 import { promises } from 'fs';
 import { join, extname } from 'path'
@@ -72,9 +72,6 @@ export async function activate(context: ExtensionContext) {
     // console.log('Loaded')
 
 
-
-
-
     console.log('Congratulations, your extension "md-tags" is now active!');
 
     // // The command has been defined in the package.json file
@@ -89,7 +86,15 @@ export async function activate(context: ExtensionContext) {
 
     });
 
-    context.subscriptions.push(disposable);
+    const provider = languages.registerCompletionItemProvider('markdown', {
+        async provideCompletionItems(document: TextDocument, position: Position) {
+            const tags = await getTags();
+            return tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword))
+        }
+    },
+    );
+
+    context.subscriptions.push(disposable, provider);
 }
 
 // this method is called when your extension is deactivated
