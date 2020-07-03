@@ -1,7 +1,7 @@
 {
-	"name": "md-tags",
-	"displayName": "md-tags",
-	"description": "",
+	"name": "markdown-tags",
+	"displayName": "markdown-tags",
+	"description": "VSCode plugin to handle Markdown tags",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.46.0"
