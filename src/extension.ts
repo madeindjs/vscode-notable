@@ -4,8 +4,9 @@ import { promises } from 'fs';
 import { join, extname } from 'path'
 import * as matter from 'gray-matter';
 
-async function walk(directory: string, filepaths: string[] = []) {
+const MD_EXTENSIONS = ['.md', '.markdown']
 
+async function walk(directory: string, filepaths: string[] = []): Promise<string[]> {
 	const files = await promises.readdir(directory);
 	for (let filename of files) {
 		const filepath = join(directory, filename);
@@ -13,30 +14,51 @@ async function walk(directory: string, filepaths: string[] = []) {
 		const isDirectory = await promises.stat(filepath).then(s => s.isDirectory())
 
 		if (isDirectory) {
-			walk(filepath, filepaths);
-		} else if (extname(filename) === '.md') {
+			await walk(filepath, filepaths);
+		} else if (MD_EXTENSIONS.includes(extname(filename))) {
 			filepaths.push(filepath);
 		}
 	}
 	return filepaths;
 }
 
-async function readMarkdown(path: string): Promise<string[]> {
+async function getMarkdownTags(path: string): Promise<string[]> {
+	console.log(`getMarkdownTags on ${path}`)
 	const content = await promises.readFile(path, { encoding: 'utf8' });
 	const { data } = matter(content);
-	return data.tags as string[];
+
+	if (data.tags instanceof Array) {
+		return data.tags;
+	}
+	return []
+}
+
+async function getTags(): Promise<string[]> {
+	if (vscode.workspace.workspaceFolders === undefined) {
+		return [];
+	}
+	const tags: string[] = []
+
+	for (const folder of vscode.workspace.workspaceFolders) {
+		console.log(`Start search tags on ${folder.uri}`)
+		const paths = await walk(folder.uri.path);
+		const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)))
+
+		arrayTags.forEach(t => tags.push(...t))
+	}
+
+	// uniq
+	return tags.filter((v, i, a) => a.indexOf(v) === i);
 }
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	console.log('Loaded')
 
-	vscode.workspace.workspaceFolders?.forEach(folder => {
-		walk(folder.uri.path).then(paths => {
-			return Promise.all(paths.map(p => readMarkdown(p)))
-		}).then(console.log);
+	getTags().then(console.log)
 
-	})
+
 
 
 	console.log('Congratulations, your extension "md-tags" is now active!');
