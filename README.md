@@ -3,7 +3,9 @@
 VSCode plugin to handle [YAML Markdown front matter](https://jekyllrb.com/docs/front-matter/) tags like this :
 
 ```markdown
+---
 tags: [markdown, vscode, extension]
+---
 ```
 
 ## Features
