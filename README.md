@@ -1,6 +1,10 @@
 # VSCode Markdown Tag
 
-VSCode plugin to handle Markdown front matter tags.
+VSCode plugin to handle [YAML Markdown front matter](https://jekyllrb.com/docs/front-matter/) tags like this :
+
+```markdown
+tags: [markdown, vscode, extension]
+```
 
 ## Features
 
@@ -8,12 +12,16 @@ VSCode plugin to handle Markdown front matter tags.
 
 ![Screenshot of autocomplete feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/autocomplete.gif)
 
-- [x] Propose tags similar using [didyoumean](https://www.npmjs.com/package/didyoumean) library
+- [x] Propose tags similar from your workspace tags using [didyoumean](https://www.npmjs.com/package/didyoumean) library
 
 ![Screenshot of didyoumean feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/didyoumean.gif)
 
 - [ ] Add an explorer view to view all markdown files linked to given note
 - [ ] More...
+
+## Installation
+
+TODO: publish
 
 ## Requirements
 
