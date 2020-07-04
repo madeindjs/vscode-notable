@@ -18,7 +18,7 @@ export async function activate(context: ExtensionContext) {
 
     });
 
-    const provider = languages.registerCompletionItemProvider('markdown', {
+    const providerCompletion = languages.registerCompletionItemProvider('markdown', {
         async provideCompletionItems(document: TextDocument, position: Position) {
             // TODO: support multi line syntax
             const linePrefix = document.lineAt(position).text.substr(0, position.character);
@@ -28,7 +28,7 @@ export async function activate(context: ExtensionContext) {
 
             const cacheKey = getTagsCacheKey();
             const cache = context.globalState.get<CompletionItem[]>(cacheKey);
-            if (cache) {return cache;}
+            if (cache) { return cache; }
 
             const tags = await getTags();
             const completions = tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword));
@@ -37,7 +37,7 @@ export async function activate(context: ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(disposable, provider);
+    context.subscriptions.push(disposable, providerCompletion);
 }
 
 export function deactivate() { }
