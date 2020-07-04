@@ -2,11 +2,7 @@
 
 VSCode plugin to handle Markdown front matter tags
 
-```markdown
----
-tags: [vscode, markdown, plugin]
----
-```
+![Screenshot of autocomplete feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/autocomplete.gif)
 
 ## Features
 
