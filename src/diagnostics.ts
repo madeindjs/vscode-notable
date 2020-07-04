@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import matter = require('gray-matter');
+import * as didyoumean from 'didyoumean';
+import { getTags } from './utils'
 
 /** Code that is used to associate diagnostic entries with code actions. */
-export const EMOJI_MENTION = 'emoji_mention';
+export const EMOJI_MENTION = 'markdown-tag.did-you-mean';
 
 /** String to detect in the text document. */
 const EMOJI = 'emoji';
@@ -13,40 +15,45 @@ const EMOJI = 'emoji';
  * @param doc text document to analyze
  * @param emojiDiagnostics diagnostic collection
  */
-export function refreshDiagnostics(doc: vscode.TextDocument, emojiDiagnostics: vscode.DiagnosticCollection): void {
+export async function refreshDiagnostics(doc: vscode.TextDocument, emojiDiagnostics: vscode.DiagnosticCollection): Promise<void> {
     const diagnostics: vscode.Diagnostic[] = [];
+
+    const tags = await getTags();
 
     for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
         const lineOfText = doc.lineAt(lineIndex);
         if (lineOfText.text.startsWith('tags: ')) {
-            diagnostics.push(...createDiagnostics(doc, lineOfText, lineIndex));
+            diagnostics.push(...createDiagnostics(doc, lineOfText, lineIndex, tags));
         }
     }
 
     emojiDiagnostics.set(doc.uri, diagnostics);
 }
 
-function createDiagnostics(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] {
+function createDiagnostics(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number, tags: string[]): vscode.Diagnostic[] {
     const diagnostics = [];
-
-    const text = doc.getText()
-
-    let data;
+    let frontMatter;
 
     try {
-        data = matter(doc.getText()).data;
+        frontMatter = matter(doc.getText()).data;
     } catch (e) {
         return [];
     }
 
+    const existingTags: string[] = frontMatter.tags instanceof Array ? frontMatter.tags : [];
 
+    // tags = tags.filter(t => !existingTags.includes(t))
 
-    const existingTags: string[] = data.tags instanceof Array ? data.tags : [];
+    for (const tag of existingTags) {
+        if (tags.includes(tag)) continue;
 
-    for (const existingTag of existingTags) {
-        const index = lineOfText.text.indexOf(existingTag);
+        const meanTag = didyoumean(tag, tags);
+
+        if (meanTag === tag || meanTag === null) continue;
+
+        const index = lineOfText.text.indexOf(tag);
         const range = new vscode.Range(lineIndex, index, lineIndex, index + EMOJI.length);
-        const diagnostic = new vscode.Diagnostic(range, "When you say 'emoji', do you want to find out more?",
+        const diagnostic = new vscode.Diagnostic(range, `It seams that tag not already exists. Did you mean "${meanTag}"`,
             vscode.DiagnosticSeverity.Information);
         diagnostic.code = EMOJI_MENTION;
 

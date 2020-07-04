@@ -8,7 +8,10 @@ VSCode plugin to handle Markdown front matter tags.
 
 ![Screenshot of autocomplete feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/autocomplete.gif)
 
-- [ ] Propose tags similar
+- [x] Propose tags similar using [didyoumean](https://www.npmjs.com/package/didyoumean) library
+
+![Screenshot of didyoumean feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/didyoumean.gif)
+
 - [ ] Add an explorer view to view all markdown files linked to given note
 - [ ] More...
 
