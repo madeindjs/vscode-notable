@@ -1,5 +1,6 @@
 import { ExtensionContext, commands, window, languages, TextDocument, Position, CompletionItem, CompletionItemKind } from 'vscode';
 import { getTags } from './utils';
+import { subscribeToDocumentChanges } from './diagnostics';
 
 
 
@@ -17,6 +18,10 @@ export async function activate(context: ExtensionContext) {
             .catch((e) => window.showErrorMessage(`Error during fetching tags: ${e}`));
 
     });
+
+    const emojiDiagnostics = languages.createDiagnosticCollection("emoji");
+	context.subscriptions.push(emojiDiagnostics);
+    subscribeToDocumentChanges(context, emojiDiagnostics);
 
     const providerCompletion = languages.registerCompletionItemProvider('markdown', {
         async provideCompletionItems(document: TextDocument, position: Position) {
@@ -36,6 +41,7 @@ export async function activate(context: ExtensionContext) {
             return completions;
         }
     });
+
 
     context.subscriptions.push(disposable, providerCompletion);
 }

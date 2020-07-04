@@ -11,6 +11,7 @@ tags: [vscode, markdown, plugin]
 ## Features
 
 - [x] Add support for autocomplete (need)
+- [ ] Propose tags similar
 - [ ] Add an explorer view
 - [ ] More...
 
@@ -36,3 +37,4 @@ Calling out known issues can help limit users opening duplicate issues against y
 ## Links
 
 - https://github.com/microsoft/vscode-extension-samples/tree/master/tree-view-sample
+- https://github.com/microsoft/vscode-extension-samples/blob/master/code-actions-sample/src/extension.ts
