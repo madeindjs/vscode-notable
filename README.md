@@ -1,13 +1,13 @@
 # VSCode Markdown Tag
 
-VSCode plugin to handle Markdown front matter tags
+VSCode plugin to handle Markdown front matter tags:
 
 ![Screenshot of autocomplete feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/autocomplete.gif)
 
 ## Features
 
-- [x] Add support for autocomplete (need)
-- [ ] Add an explorer view
+- [x] Add autocomplete tags from Markdowns tags in workspace directory
+- [ ] Add an explorer view to view all markdown files linked to given note
 - [ ] More...
 
 ## Requirements
