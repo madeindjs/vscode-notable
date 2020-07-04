@@ -19,6 +19,7 @@ tags: [markdown, vscode, extension]
 ![Screenshot of didyoumean feature](https://raw.githubusercontent.com/madeindjs/vscode-markdown-tags/master/screenshots/didyoumean.gif)
 
 - [ ] Add an explorer view to view all markdown files linked to given note
+- [ ] Jump on related notes using [show all references](https://github.com/microsoft/vscode-extension-samples/tree/master/contentprovider-sample)
 - [ ] More...
 
 ## Installation
