@@ -30,7 +30,8 @@ async function walk(directory: string, filepaths: string[] = []): Promise<string
     return filepaths;
 }
 
-async function getMarkdownTags(path: string): Promise<string[]> {
+
+export async function getMarkdownTags(path: string): Promise<string[]> {
     // console.log(`getMarkdownTags on ${path}`)
     const content = await promises.readFile(path, { encoding: 'utf8' });
     const { data } = matter(content);
