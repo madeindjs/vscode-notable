@@ -3,15 +3,15 @@ import { promises } from "fs";
 import { join, extname } from "path";
 import matter = require("gray-matter");
 
-const MD_EXTENSIONS = ['.md', '.markdown']
+const MD_EXTENSIONS = ['.md', '.markdown'];
 
 async function getProgress(title: string): Promise<Progress<any>> {
 
     return await new Promise((resolve, reject) => {
         window.withProgress({ location: ProgressLocation.Notification, title, cancellable: false }, async (progress) => {
-            return resolve(progress)
+            return resolve(progress);
         });
-    })
+    });
 }
 
 async function walk(directory: string, filepaths: string[] = []): Promise<string[]> {
@@ -19,7 +19,7 @@ async function walk(directory: string, filepaths: string[] = []): Promise<string
     for (let filename of files) {
         const filepath = join(directory, filename);
 
-        const isDirectory = await promises.stat(filepath).then(s => s.isDirectory())
+        const isDirectory = await promises.stat(filepath).then(s => s.isDirectory());
 
         if (isDirectory) {
             await walk(filepath, filepaths);
@@ -38,7 +38,7 @@ async function getMarkdownTags(path: string): Promise<string[]> {
     if (data.tags instanceof Array) {
         return data.tags;
     }
-    return []
+    return [];
 }
 
 export async function getTags(options: { showProgress: boolean } = { showProgress: false }): Promise<string[]> {
@@ -48,17 +48,17 @@ export async function getTags(options: { showProgress: boolean } = { showProgres
 
     const { showProgress } = options;
 
-    const tags: string[] = []
+    const tags: string[] = [];
 
     for (const folder of workspace.workspaceFolders) {
         let progress;
 
         if (showProgress) {
-            progress = await getProgress(`Search tags on ${folder.uri}`)
+            progress = await getProgress(`Search tags on ${folder.uri}`);
         }
 
 
-        console.log(`Start search tags on ${folder.uri}`)
+        console.log(`Start search tags on ${folder.uri}`);
         const paths = await walk(folder.uri.path);
         const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)));
 
@@ -66,7 +66,7 @@ export async function getTags(options: { showProgress: boolean } = { showProgres
             progress.report(100);
         }
 
-        arrayTags.forEach(t => tags.push(...t))
+        arrayTags.forEach(t => tags.push(...t));
     }
 
     // uniq
