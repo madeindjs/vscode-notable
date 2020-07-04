@@ -6,6 +6,11 @@
 	"engines": {
 		"vscode": "^1.46.0"
 	},
+	"publisher": "madeindjs",
+	"repository": {
+		"type": "Github",
+		"url": "https://github.com/madeindjs/vscode-markdown-tags/"
+	},
 	"categories": [
 		"Other"
 	],

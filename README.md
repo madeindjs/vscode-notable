@@ -21,7 +21,10 @@ tags: [markdown, vscode, extension]
 
 ## Installation
 
-TODO: publish
+Available :
+
+- [ ] [on MarketPlace](https://marketplace.visualstudio.com/vscode) for Visual Studio Code
+- [on OpenVSX](https://open-vsx.org/extension/madeindjs/markdown-tags) for VSCodium and other fork
 
 ## Requirements
 
