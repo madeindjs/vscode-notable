@@ -42,22 +42,30 @@ async function getMarkdownTags(path: string): Promise<string[]> {
     return []
 }
 
-async function getTags(): Promise<string[]> {
+async function getTags(options: { showProgress: boolean } = { showProgress: false }): Promise<string[]> {
     if (workspace.workspaceFolders === undefined) {
         return [];
     }
+
+    const { showProgress } = options;
+
     const tags: string[] = []
 
     for (const folder of workspace.workspaceFolders) {
-        const progress = await getProgress(`Search tags on ${folder.uri}`)
+        let progress;
 
+        if (showProgress) {
+            progress = await getProgress(`Search tags on ${folder.uri}`)
+        }
 
 
         console.log(`Start search tags on ${folder.uri}`)
         const paths = await walk(folder.uri.path);
         const arrayTags = await Promise.all(paths.map(p => getMarkdownTags(p)));
 
-        progress.report(100);
+        if (progress) {
+            progress.report(100);
+        }
 
         arrayTags.forEach(t => tags.push(...t))
     }
@@ -66,20 +74,8 @@ async function getTags(): Promise<string[]> {
     return tags.filter((v, i, a) => a.indexOf(v) === i);
 }
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export async function activate(context: ExtensionContext) {
-    // console.log('Loaded')
-
-
-    console.log('Congratulations, your extension "md-tags" is now active!');
-
-    // // The command has been defined in the package.json file
-    // // Now provide the implementation of the command with registerCommand
-    // // The commandId parameter must match the command field in package.json
     let disposable = commands.registerCommand('md-tags.showTags', () => {
-
-
         return getTags()
             .then(tags => window.showInformationMessage(`You have theses tags: ${tags}`))
             .catch((e) => window.showErrorMessage(`Error during fetching tags: ${e}`))
@@ -91,11 +87,9 @@ export async function activate(context: ExtensionContext) {
             const tags = await getTags();
             return tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword))
         }
-    },
-    );
+    });
 
     context.subscriptions.push(disposable, provider);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() { }
