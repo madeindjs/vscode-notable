@@ -84,6 +84,15 @@ export async function activate(context: ExtensionContext) {
 
     const provider = languages.registerCompletionItemProvider('markdown', {
         async provideCompletionItems(document: TextDocument, position: Position) {
+
+
+            const linePrefix = document.lineAt(position).text.substr(0, position.character);
+            if (!linePrefix.startsWith('tags:')) {
+                return undefined;
+            }
+
+            // TODO: support multi line syntax
+
             const tags = await getTags();
             return tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword))
         }
