@@ -74,7 +74,14 @@ async function getTags(options: { showProgress: boolean } = { showProgress: fals
     return tags.filter((v, i, a) => a.indexOf(v) === i);
 }
 
+function getTagsCacheKey(): string {
+    const d = new Date()
+    return `markdown-tags_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDay()}T${d.getHours()}:${d.getMinutes()}`
+}
+
 export async function activate(context: ExtensionContext) {
+
+
     let disposable = commands.registerCommand('md-tags.showTags', () => {
         return getTags()
             .then(tags => window.showInformationMessage(`You have theses tags: ${tags}`))
@@ -84,17 +91,20 @@ export async function activate(context: ExtensionContext) {
 
     const provider = languages.registerCompletionItemProvider('markdown', {
         async provideCompletionItems(document: TextDocument, position: Position) {
-
-
+            // TODO: support multi line syntax
             const linePrefix = document.lineAt(position).text.substr(0, position.character);
             if (!linePrefix.startsWith('tags:')) {
                 return undefined;
             }
 
-            // TODO: support multi line syntax
+            const cacheKey = getTagsCacheKey();
+            const cache = context.globalState.get<CompletionItem[]>(cacheKey)
+            if (cache) return cache;
 
             const tags = await getTags();
-            return tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword))
+            const completions = tags.map(tag => new CompletionItem(tag, CompletionItemKind.Keyword))
+            await context.globalState.update(cacheKey, completions);
+            return completions;
         }
     });
 
