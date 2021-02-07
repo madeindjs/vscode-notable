@@ -42,9 +42,9 @@ modified: '${new Date().toISOString()}'
 }
 
 export async function activate(context: ExtensionContext) {
-  let disposable = commands.registerCommand("notable.createNote", () => {
-    return openNewFile();
-  });
+  let disposable = commands.registerCommand("notable.createNote", () =>
+    openNewFile()
+  );
 
   context.subscriptions.push(disposable);
 
