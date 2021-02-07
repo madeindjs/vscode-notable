@@ -21,8 +21,8 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "md-tags.showTags",
-				"title": "Show all tags"
+				"command": "notable.createNote",
+				"title": "Notable: Create a new note"
 			}
 		],
 		"menus": {
