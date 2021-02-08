@@ -1,20 +1,24 @@
+import matter = require("gray-matter");
 import path = require("path");
+import yaml = require("yaml");
 import {
   commands,
   ExtensionContext,
   Position,
+  Range,
+  SnippetString,
   Uri,
   window,
   workspace,
   WorkspaceEdit,
 } from "vscode";
 
-function getTagsCacheKey(): string {
-  const d = new Date();
-  return `markdown-tags_${d.getFullYear()}-${
-    d.getMonth() + 1
-  }-${d.getDay()}T${d.getHours()}:${d.getMinutes()}`;
-}
+// function getTagsCacheKey(): string {
+//   const d = new Date();
+//   return `markdown-tags_${d.getFullYear()}-${
+//     d.getMonth() + 1
+//   }-${d.getDay()}T${d.getHours()}:${d.getMinutes()}`;
+// }
 
 function openNewFile() {
   const defaultContent = `---
@@ -41,12 +45,44 @@ modified: '${new Date().toISOString()}'
   });
 }
 
-export async function activate(context: ExtensionContext) {
-  let disposable = commands.registerCommand("notable.createNote", () =>
-    openNewFile()
-  );
+function deleteNote() {
+  const editor = window.activeTextEditor;
 
-  context.subscriptions.push(disposable);
+  if (editor === undefined) {
+    return;
+  }
+
+  const content = editor.document.getText();
+
+  const { data } = matter(content);
+
+  if (data.deleted === true) {
+    delete data.deleted;
+  } else {
+    data.deleted = true;
+  }
+  const newMatter = `---\n${yaml.stringify(data)}---`;
+
+  const firstMatter = content.indexOf("---");
+  const secondMatter = content.indexOf("---", firstMatter + 3);
+
+  if (secondMatter) {
+    const firstMatterPosition = editor.document.positionAt(firstMatter);
+    const secondMatterPosition = editor.document.positionAt(secondMatter + 3);
+    const range = new Range(firstMatterPosition, secondMatterPosition);
+
+    editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
+  } else {
+    const snippet = new SnippetString(newMatter);
+    editor.insertSnippet(snippet);
+  }
+}
+
+export async function activate(context: ExtensionContext) {
+  context.subscriptions.push(
+    commands.registerCommand("notable.createNote", openNewFile),
+    commands.registerCommand("notable.safeDeleteNote", deleteNote)
+  );
 
   // const emojiDiagnostics = languages.createDiagnosticCollection("emoji");
   // context.subscriptions.push(emojiDiagnostics);
