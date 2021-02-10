@@ -11,6 +11,7 @@ import {
 } from "vscode";
 import { uniq } from "./utils";
 import yaml = require("yaml");
+const parse = require("markdown-to-ast").parse;
 
 export function createNote() {
   const defaultContent = `---
@@ -64,11 +65,24 @@ export async function addTagNote() {
   updateFrontMatter(editor, data);
 }
 
-export function updateFrontMatter(
-  editor: TextEditor,
-  matterData: Object
-): void {
+export function updateFrontMatter(editor: TextEditor, matterData: any): void {
   const content = editor.document.getText();
+
+  const ast = parse(content);
+
+  const titles = ast.children.filter(
+    (c: any) => c.type === "Header" && c.depth === 1
+  );
+
+  if (titles.length > 0) {
+    const raw = titles[0].raw as string;
+    // not support other syntax than `# title`
+    if (!raw.startsWith("# ")) {
+      return;
+    }
+    matterData.title = raw.replace("# ", "");
+  }
+
   const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
   const firstMatter = 0;

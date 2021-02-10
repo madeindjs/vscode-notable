@@ -64,6 +64,7 @@
   "dependencies": {
     "didyoumean": "^1.2.1",
     "gray-matter": "^4.0.2",
+    "markdown-to-ast": "^6.0.3",
     "yaml": "^1.10.0"
   }
 }
