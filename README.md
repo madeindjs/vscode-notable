@@ -6,7 +6,7 @@ VSCode plugin to take Markdown notes following [Notable](https://notable.app/) f
 
 - [x] create new note
 - [x] edit tags
-- [ ] update `created_at` and `updated_at` field on save note
+- [x] update `modified` field on save note
 - [ ] rename file on title update
 - [ ] add panel view with all tags
 - [x] add an action to safe delete file

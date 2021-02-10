@@ -7,6 +7,7 @@ import {
   Position,
   Range,
   SnippetString,
+  TextDocumentWillSaveEvent,
   TextEditor,
   Uri,
   window,
@@ -78,7 +79,8 @@ function updateFrontMatter(editor: TextEditor, matterData: Object): void {
   const content = editor.document.getText();
   const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
-  const firstMatter = content.indexOf("---");
+  const firstMatter = 0;
+  // TODO: prevent interpret separator block
   const secondMatter = content.indexOf("---", firstMatter + 3);
 
   if (secondMatter) {
@@ -112,6 +114,26 @@ function deleteNote() {
 
   updateFrontMatter(editor, data);
 }
+
+// Update
+workspace.onWillSaveTextDocument(({ document }: TextDocumentWillSaveEvent) => {
+  const editor = window.activeTextEditor;
+
+  if (editor === undefined) {
+    return;
+  }
+
+  if (
+    document.languageId === "markdown" &&
+    document.uri.path === editor.document.uri.path
+  ) {
+    const content = document.getText();
+    const { data } = matter(content);
+
+    data.modified = new Date().toISOString();
+    updateFrontMatter(editor, data);
+  }
+});
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
