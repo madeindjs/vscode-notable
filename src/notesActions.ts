@@ -83,21 +83,23 @@ export function updateFrontMatter(editor: TextEditor, matterData: any): void {
     matterData.title = raw.replace("# ", "");
   }
 
+  const oldMatterNode = ast.children.filter((c: any) => c.type === "Yaml")[0];
+
   const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
-  const firstMatter = 0;
-  // TODO: prevent interpret separator block
-  const secondMatter = content.indexOf("---", firstMatter + 3);
-
-  if (secondMatter) {
-    const firstMatterPosition = editor.document.positionAt(firstMatter);
-    const secondMatterPosition = editor.document.positionAt(secondMatter + 3);
+  if (oldMatterNode === undefined) {
+    const snippet = new SnippetString(`${newMatter}\n`);
+    editor.insertSnippet(snippet);
+  } else {
+    const firstMatterPosition = editor.document.positionAt(
+      oldMatterNode.range[0]
+    );
+    const secondMatterPosition = editor.document.positionAt(
+      oldMatterNode.range[1]
+    );
     const range = new Range(firstMatterPosition, secondMatterPosition);
 
     editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
-  } else {
-    const snippet = new SnippetString(newMatter);
-    editor.insertSnippet(snippet);
   }
 }
 
