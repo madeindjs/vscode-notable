@@ -7,11 +7,13 @@ import {
   Position,
   Range,
   SnippetString,
+  TextEditor,
   Uri,
   window,
   workspace,
   WorkspaceEdit,
 } from "vscode";
+import { uniq } from "./utils";
 
 // function getTagsCacheKey(): string {
 //   const d = new Date();
@@ -45,23 +47,36 @@ modified: '${new Date().toISOString()}'
   });
 }
 
-function deleteNote() {
+async function addTagNote() {
   const editor = window.activeTextEditor;
 
   if (editor === undefined) {
+    window.showErrorMessage("Please open an editor");
+    return;
+  }
+  const content = editor.document.getText();
+  const { data } = matter(content);
+
+  const oldTags = data.tags ?? [];
+
+  const newTagsStr = await window.showInputBox({
+    value: oldTags.join(","),
+    prompt: "Enter one or many tags (separated by a comma)",
+  });
+
+  if (newTagsStr === undefined) {
+    window.showErrorMessage("You don't have write any tags");
     return;
   }
 
+  data.tags = uniq(newTagsStr.split(",").map((t) => t.trim()));
+
+  updateFrontMatter(editor, data);
+}
+
+function updateFrontMatter(editor: TextEditor, matterData: Object): void {
   const content = editor.document.getText();
-
-  const { data } = matter(content);
-
-  if (data.deleted === true) {
-    delete data.deleted;
-  } else {
-    data.deleted = true;
-  }
-  const newMatter = `---\n${yaml.stringify(data)}---`;
+  const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
   const firstMatter = content.indexOf("---");
   const secondMatter = content.indexOf("---", firstMatter + 3);
@@ -78,9 +93,30 @@ function deleteNote() {
   }
 }
 
+function deleteNote() {
+  const editor = window.activeTextEditor;
+
+  if (editor === undefined) {
+    window.showErrorMessage("Please open an editor");
+    return;
+  }
+
+  const content = editor.document.getText();
+  const { data } = matter(content);
+
+  if (data.deleted === true) {
+    delete data.deleted;
+  } else {
+    data.deleted = true;
+  }
+
+  updateFrontMatter(editor, data);
+}
+
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("notable.createNote", openNewFile),
+    commands.registerCommand("notable.addTagNote", addTagNote),
     commands.registerCommand("notable.safeDeleteNote", deleteNote)
   );
 

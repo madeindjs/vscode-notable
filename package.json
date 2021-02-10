@@ -21,24 +21,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "notable.safeDeleteNote",
-        "title": "Notable: Safe delete a new note"
-      },
-      {
         "command": "notable.createNote",
         "title": "Notable: Create a new note"
+      },
+      {
+        "when": "resourceLangId == md",
+        "command": "notable.addTagNote",
+        "title": "Notable: Edit tags"
+      },
+      {
+        "when": "resourceLangId == md",
+        "command": "notable.safeDeleteNote",
+        "title": "Notable: Safe delete a new note"
       }
     ],
     "menus": {
-      "explorer/context": [
-        {
-          "when": "resourceLangId == md",
-          "command": "md-tags.showTags",
-          "title": "Show all tags",
-          "alt": "markdown.showPreviewToSide",
-          "group": "navigation"
-        }
-      ]
+      "explorer/context": []
     }
   },
   "scripts": {
