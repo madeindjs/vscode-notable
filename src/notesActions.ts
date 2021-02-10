@@ -38,6 +38,17 @@ modified: '${new Date().toISOString()}'
   });
 }
 
+export async function searchNote() {
+  const query = await window.showInputBox({
+    prompt: "What do you search",
+    placeHolder: "#tag content",
+  });
+
+  window.showQuickPick([
+    /* WIP */
+  ]);
+}
+
 export async function addTagNote() {
   const editor = window.activeTextEditor;
 
