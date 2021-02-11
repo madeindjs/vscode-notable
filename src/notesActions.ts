@@ -56,7 +56,7 @@ function parseQuery(query: string): SearchNoteQuery {
     tags.push(...tagsMatches.map((m) => m.replace("#", "")));
   }
 
-  tags.forEach((tag) => (query = query.replace(`"#${tag}`, "")));
+  tags.forEach((tag) => (query = query.replace(`#${tag}`, "")));
 
   return { tags, content: query };
 }
@@ -68,8 +68,6 @@ function isMarkdownFileMatchTag(
   if (queryTags.length === 0) {
     return true;
   }
-
-  // todo this not works great
 
   if (document.matter.tags instanceof Array) {
     return queryTags.every((tag) => document.matter.tags.includes(tag));
@@ -92,7 +90,7 @@ function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickItem {
   const detail: string = ast.children
     .filter((c: any) => c.type === "Paragraph")
     .map((c: any) => c.raw)
-    .join(" (...) ");
+    .join(" ... ");
 
   return {
     label: basename(document.path),
@@ -116,20 +114,37 @@ export async function searchNote() {
   const markdownFiles = await getMarkdownFiles({ showProgress: true });
 
   // TODO read file in folder
-  const documents = markdownFiles
+  const matchingMarkdownFiles = markdownFiles
     .filter((document) => isMarkdownFileMatchTag(document, query.tags))
     .filter((document) => isMarkdownFileMatchContent(document, query.content));
 
-  if (documents.length === 0) {
+  if (matchingMarkdownFiles.length === 0) {
     window.showErrorMessage("Cannot find any notes matching this query");
     return;
   }
 
-  const quickPickItems: QuickPickItem[] = documents.map((doc) =>
+  const quickPickItems: QuickPickItem[] = matchingMarkdownFiles.map((doc) =>
     markdownFileToQuickPickItem(doc)
   );
 
-  window.showQuickPick<QuickPickItem>(quickPickItems);
+  const selected = await window.showQuickPick<QuickPickItem>(quickPickItems);
+
+  if (selected === undefined) {
+    return;
+  }
+
+  const selectedMarkdownFile = matchingMarkdownFiles.find((d) =>
+    d.path.endsWith(selected.label)
+  );
+
+  if (selectedMarkdownFile === undefined) {
+    window.showErrorMessage("Oops. Could not find matching file");
+  } else {
+    const document = await workspace.openTextDocument(
+      Uri.file(selectedMarkdownFile.path)
+    );
+    await window.showTextDocument(document);
+  }
 }
 
 export async function addTagNote() {
