@@ -87,12 +87,17 @@ function isMarkdownFileMatchContent(
 
 function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickItem {
   const tags: string[] = document.matter.tags ?? [];
+  const ast = parse(document.content);
+
+  const detail: string = ast.children
+    .filter((c: any) => c.type === "Paragraph")
+    .map((c: any) => c.raw)
+    .join(" (...) ");
 
   return {
     label: basename(document.path),
     description: tags.map((t) => `#${t}`).join(", "),
-    // TODO improve details
-    detail: document.content.slice(0, 100),
+    detail,
   };
 }
 
