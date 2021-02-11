@@ -1,4 +1,5 @@
 import matter = require("gray-matter");
+import { basename } from "path";
 import {
   Position,
   QuickPickItem,
@@ -68,6 +69,8 @@ function isMarkdownFileMatchTag(
     return true;
   }
 
+  // todo this not works great
+
   if (document.matter.tags instanceof Array) {
     return queryTags.every((tag) => document.matter.tags.includes(tag));
   } else {
@@ -86,9 +89,10 @@ function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickItem {
   const tags: string[] = document.matter.tags ?? [];
 
   return {
-    label: document.path,
+    label: basename(document.path),
     description: tags.map((t) => `#${t}`).join(", "),
-    // TODO add exerpt
+    // TODO improve details
+    detail: document.content.slice(0, 100),
   };
 }
 
@@ -110,6 +114,11 @@ export async function searchNote() {
   const documents = markdownFiles
     .filter((document) => isMarkdownFileMatchTag(document, query.tags))
     .filter((document) => isMarkdownFileMatchContent(document, query.content));
+
+  if (documents.length === 0) {
+    window.showErrorMessage("Cannot find any notes matching this query");
+    return;
+  }
 
   const quickPickItems: QuickPickItem[] = documents.map((doc) =>
     markdownFileToQuickPickItem(doc)
