@@ -4,14 +4,13 @@ import {
   QuickPickItem,
   Range,
   SnippetString,
-  TextDocument,
   TextEditor,
   Uri,
   window,
   workspace,
   WorkspaceEdit,
 } from "vscode";
-import { uniq } from "./utils";
+import { getMarkdownFiles, MarkdownFile, uniq } from "./utils";
 import yaml = require("yaml");
 const parse = require("markdown-to-ast").parse;
 
@@ -61,36 +60,33 @@ function parseQuery(query: string): SearchNoteQuery {
   return { tags, content: query };
 }
 
-function isDocumentMatchTag(
-  document: TextDocument,
+function isMarkdownFileMatchTag(
+  document: MarkdownFile,
   queryTags: string[]
 ): boolean {
   if (queryTags.length === 0) {
     return true;
   }
-  const { data } = matter(document.getText());
 
-  if (data.tags instanceof Array) {
-    return queryTags.every((tag) => data.tags.includes(tag));
+  if (document.matter.tags instanceof Array) {
+    return queryTags.every((tag) => document.matter.tags.includes(tag));
   } else {
     return false;
   }
 }
 
-function isDocumentMatchContent(
-  document: TextDocument,
+function isMarkdownFileMatchContent(
+  document: MarkdownFile,
   content: string
 ): boolean {
-  return document.getText().includes(content);
+  return document.content.includes(content);
 }
 
-function documentToQuickPickItem(document: TextDocument): QuickPickItem {
-  const { data } = matter(document.getText());
-
-  const tags: string[] = data.tags ?? [];
+function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickItem {
+  const tags: string[] = document.matter.tags ?? [];
 
   return {
-    label: document.uri.path,
+    label: document.path,
     description: tags.map((t) => `#${t}`).join(", "),
     // TODO add exerpt
   };
@@ -108,14 +104,15 @@ export async function searchNote() {
 
   const query = parseQuery(queryStr);
 
+  const markdownFiles = await getMarkdownFiles({ showProgress: true });
+
   // TODO read file in folder
-  const documents = workspace.textDocuments
-    .filter(({ languageId }) => languageId === "markdown")
-    .filter((document) => isDocumentMatchTag(document, query.tags))
-    .filter((document) => isDocumentMatchContent(document, query.content));
+  const documents = markdownFiles
+    .filter((document) => isMarkdownFileMatchTag(document, query.tags))
+    .filter((document) => isMarkdownFileMatchContent(document, query.content));
 
   const quickPickItems: QuickPickItem[] = documents.map((doc) =>
-    documentToQuickPickItem(doc)
+    markdownFileToQuickPickItem(doc)
   );
 
   window.showQuickPick<QuickPickItem>(quickPickItems);
