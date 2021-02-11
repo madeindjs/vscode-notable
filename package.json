@@ -25,6 +25,10 @@
         "title": "Notable: Create a new note"
       },
       {
+        "command": "notable.searchNote",
+        "title": "Notable: Search a new note"
+      },
+      {
         "when": "resourceLangId == md",
         "command": "notable.addTagNote",
         "title": "Notable: Edit tags"

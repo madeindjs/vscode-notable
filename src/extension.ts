@@ -10,6 +10,7 @@ import {
   addTagNote,
   createNote,
   deleteNote,
+  searchNote,
   updateFrontMatter,
 } from "./notesActions";
 
@@ -35,7 +36,8 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("notable.createNote", createNote),
     commands.registerCommand("notable.addTagNote", addTagNote),
-    commands.registerCommand("notable.safeDeleteNote", deleteNote)
+    commands.registerCommand("notable.safeDeleteNote", deleteNote),
+    commands.registerCommand("notable.searchNote", searchNote)
   );
 }
 

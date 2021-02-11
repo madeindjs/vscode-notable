@@ -1,8 +1,10 @@
 import matter = require("gray-matter");
 import {
   Position,
+  QuickPickItem,
   Range,
   SnippetString,
+  TextDocument,
   TextEditor,
   Uri,
   window,
@@ -12,6 +14,11 @@ import {
 import { uniq } from "./utils";
 import yaml = require("yaml");
 const parse = require("markdown-to-ast").parse;
+
+interface SearchNoteQuery {
+  tags: string[];
+  content: string;
+}
 
 export function createNote() {
   const defaultContent = `---
@@ -38,15 +45,80 @@ modified: '${new Date().toISOString()}'
   });
 }
 
+function parseQuery(query: string): SearchNoteQuery {
+  const tags = [];
+
+  let tagsMatches = query.match(/\#\w*/g);
+
+  if (tagsMatches instanceof Array) {
+    tagsMatches.forEach((m) => query.replace(m, ""));
+
+    tags.push(...tagsMatches.map((m) => m.replace("#", "")));
+  }
+
+  tags.forEach((tag) => (query = query.replace(`"#${tag}`, "")));
+
+  return { tags, content: query };
+}
+
+function isDocumentMatchTag(
+  document: TextDocument,
+  queryTags: string[]
+): boolean {
+  if (queryTags.length === 0) {
+    return true;
+  }
+  const { data } = matter(document.getText());
+
+  if (data.tags instanceof Array) {
+    return queryTags.every((tag) => data.tags.includes(tag));
+  } else {
+    return false;
+  }
+}
+
+function isDocumentMatchContent(
+  document: TextDocument,
+  content: string
+): boolean {
+  return document.getText().includes(content);
+}
+
+function documentToQuickPickItem(document: TextDocument): QuickPickItem {
+  const { data } = matter(document.getText());
+
+  const tags: string[] = data.tags ?? [];
+
+  return {
+    label: document.uri.path,
+    description: tags.map((t) => `#${t}`).join(", "),
+    // TODO add exerpt
+  };
+}
+
 export async function searchNote() {
-  const query = await window.showInputBox({
+  const queryStr = await window.showInputBox({
     prompt: "What do you search",
     placeHolder: "#tag content",
   });
 
-  window.showQuickPick([
-    /* WIP */
-  ]);
+  if (queryStr === undefined) {
+    return;
+  }
+
+  const query = parseQuery(queryStr);
+
+  // TODO read file in folder
+  const documents = workspace.textDocuments
+    .filter(({ languageId }) => languageId === "markdown")
+    .filter((document) => isDocumentMatchTag(document, query.tags))
+    .filter((document) => isDocumentMatchContent(document, query.content));
+
+  const quickPickItems: QuickPickItem[] = documents.map((doc) =>
+    documentToQuickPickItem(doc)
+  );
+
+  window.showQuickPick<QuickPickItem>(quickPickItems);
 }
 
 export async function addTagNote() {
