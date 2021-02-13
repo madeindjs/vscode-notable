@@ -9,10 +9,10 @@
   "publisher": "madeindjs",
   "repository": {
     "type": "Github",
-    "url": "https://github.com/madeindjs/vscode-markdown-tags/"
+    "url": "https://github.com/madeindjs/vscode-notable"
   },
   "categories": [
-    "Other"
+    "productivity"
   ],
   "activationEvents": [
     "*"

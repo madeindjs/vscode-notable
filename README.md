@@ -2,6 +2,8 @@
 
 VSCode plugin to take Markdown notes following [Notable](https://notable.app/) format.
 
+![How to use VSCode Notable](screenshots/main.gif)
+
 Why you should use this extension:
 
 - you already use VSCode
