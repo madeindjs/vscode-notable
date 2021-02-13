@@ -27,8 +27,7 @@ on save
 Other
 
 - [ ] add panel view with all tags
-- [ ] add search
-  - maybe with Treeview ? [vscode-docs/v1_37.md at master · microsoft/vscode-docs](https://github.com/microsoft/vscode-docs/blob/master/release-notes/v1_37.md#new-tree-widget-adopted-in-tree-view)
+- [x] add search
 
 ## Installation
 
