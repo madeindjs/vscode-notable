@@ -1,4 +1,9 @@
-# VSCode Notable
+---
+modified: 2021-02-13T09:28:26.130Z
+title: Notable for VScode
+---
+
+# Notable for VScode
 
 VSCode plugin to take Markdown notes following [Notable](https://notable.app/) format.
 
@@ -33,9 +38,11 @@ Other
 
 Available :
 
-- [ ] [on MarketPlace](https://marketplace.visualstudio.com/vscode) for Visual Studio Code
-- [ ] [on OpenVSX](https://open-vsx.org/extension/madeindjs/markdown-tags) for VSCodium and other fork
+- [x] [on MarketPlace](https://marketplace.visualstudio.com/items?itemName=madeindjs.notable-vscode) for Visual Studio Code
+- [ ] [on OpenVSX](https://open-vsx.org/extension/madeindjs/notable-vscode) for VSCodium and other fork
 
 ## Known Issues
 
-Not for the moment. [Open an issue](https://github.com/madeindjs/vscode-notable/issues/new) if you find one.
+- should not update readme
+
+[Open an issue](https://github.com/madeindjs/vscode-notable/issues/new) if you find one.

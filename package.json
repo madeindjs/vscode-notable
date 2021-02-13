@@ -1,7 +1,7 @@
 {
   "name": "notable-vscode",
-  "displayName": "notable-vscode",
-  "description": "VSCode plugin to take Markdown notes following Notable.",
+  "displayName": "Notable",
+  "description": "Extension to edit and search Markdown notes from Notable.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.46.0"
