@@ -12,10 +12,10 @@
     "url": "https://github.com/madeindjs/vscode-notable"
   },
   "categories": [
-    "productivity"
+    "Notebooks"
   ],
   "activationEvents": [
-    "*"
+    "onLanguage:markdown"
   ],
   "main": "./out/extension.js",
   "contributes": {
