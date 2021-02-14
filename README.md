@@ -1,5 +1,5 @@
 ---
-modified: 2021-02-14T20:57:13.597Z
+modified: 2021-02-14T21:21:56.310Z
 title: Notable for VScode
 ---
 
@@ -38,8 +38,8 @@ Other
 
 Available :
 
-- [x] [on MarketPlace](https://marketplace.visualstudio.com/items?itemName=madeindjs.notable-vscode) for Visual Studio Code
-- [ ] [on OpenVSX](https://open-vsx.org/extension/madeindjs/notable-vscode) for VSCodium and other fork
+- [x] [on MarketPlace](https://marketplace.visualstudio.com/items?itemName=madeindjs.notable) for Visual Studio Code
+- [x] [on OpenVSX](https://open-vsx.org/extension/madeindjs/notable) for VSCodium and other fork
 
 ## Known Issues
 
