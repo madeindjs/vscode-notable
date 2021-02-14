@@ -1,5 +1,5 @@
 ---
-modified: 2021-02-14T21:21:56.310Z
+modified: 2021-02-14T21:35:00.286Z
 title: Notable for VScode
 ---
 
@@ -43,6 +43,8 @@ Available :
 
 ## Known Issues
 
-- should not update readme
+- [ ] should not update readme
+- [ ] error for vscodium version (command does not exists)
+- [ ] add an option to avoid save hook
 
 [Open an issue](https://github.com/madeindjs/vscode-notable/issues/new) if you find one.
