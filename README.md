@@ -1,5 +1,5 @@
 ---
-modified: 2021-02-13T09:28:26.130Z
+modified: 2021-02-14T20:57:13.597Z
 title: Notable for VScode
 ---
 
@@ -7,7 +7,7 @@ title: Notable for VScode
 
 VSCode plugin to take Markdown notes following [Notable](https://notable.app/) format.
 
-![How to use VSCode Notable](screenshots/main.gif)
+![How to use VSCode Notable](images/screenshot.gif)
 
 Why you should use this extension:
 
