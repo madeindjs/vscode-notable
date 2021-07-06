@@ -1,18 +1,35 @@
 import matter = require("gray-matter");
-import {Range, SnippetString, TextDocument, window} from "vscode";
+import {dirname, extname, join} from "path";
+import {Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
+const sanitize = require("sanitize-filename");
 
 export class MarkdownDocument {
-  private frontMatterData: Object | undefined;
+  private frontMatterData: any | undefined;
   private ast: any | undefined;
 
-  constructor(public readonly document: TextDocument) {}
+  constructor(public readonly document: TextDocument) {
+    this.parse();
+  }
 
-  save() {
-    this.updateFrontMatter({modified: new Date().toISOString()});
-    // const edit = new WorkspaceEdit();
-    // edit.renameFile(document.uri, this.targetPath, {overwrite: true});
+  async save() {
+    const title = this.getCurrentTitle();
+    this.updateFrontMatter({modified: new Date().toISOString(), title});
+
+    const folderPath = dirname(this.document.uri.path);
+
+    // TODO handle if undefined
+    const filename = sanitize(title);
+    const extension = extname(this.document.uri.path);
+
+    const newUri = Uri.parse(join(folderPath, `${filename}${extension}`));
+
+    // Uri.joinPath(this.document.uri.path)
+
+    const edit = new WorkspaceEdit();
+    edit.renameFile(this.document.uri, newUri, {overwrite: true});
+    await workspace.applyEdit(edit);
   }
 
   private parse() {
@@ -35,6 +52,11 @@ export class MarkdownDocument {
       }
       return raw.replace("# ", "");
     }
+
+    if (this.frontMatterData?.title !== undefined) {
+      return this.frontMatterData?.title;
+    }
+
     return undefined;
   }
 
@@ -53,12 +75,6 @@ export class MarkdownDocument {
     }
 
     matterData = {...this.frontMatterData, ...matterData};
-
-    const title = this.getCurrentTitle();
-
-    if (title !== undefined) {
-      matterData.title = title;
-    }
 
     const oldMatterNode = this.ast.children.filter((c: any) => c.type === "Yaml")[0];
 
