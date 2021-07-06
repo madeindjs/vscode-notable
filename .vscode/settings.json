@@ -10,5 +10,7 @@
     "typescript.tsc.autoDetect": "off",
     "cSpell.words": [
         "didyoumean"
-    ]
+    ],
+    "editor.tabSize": 2,
+    "prettier.printWidth": 120
 }

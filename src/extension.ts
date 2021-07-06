@@ -10,6 +10,7 @@ import {
   workspace,
   WorkspaceEdit,
 } from "vscode";
+import {MarkdownDocument} from "./markdownDocument";
 import {
   getMarkdownFiles,
   isMarkdownFileMatchContent,
@@ -57,7 +58,7 @@ async function searchNote() {
 
   const query = parseQuery(queryStr);
 
-  const markdownFiles = await getMarkdownFiles({ showProgress: true });
+  const markdownFiles = await getMarkdownFiles({showProgress: true});
 
   const matchingMarkdownFiles = markdownFiles
     .filter((document) => isMarkdownFileMatchTag(document, query.tags))
@@ -68,9 +69,7 @@ async function searchNote() {
     return;
   }
 
-  const quickPickItems: QuickPickItem[] = matchingMarkdownFiles.map((doc) =>
-    markdownFileToQuickPickItem(doc)
-  );
+  const quickPickItems: QuickPickItem[] = matchingMarkdownFiles.map((doc) => markdownFileToQuickPickItem(doc));
 
   const selected = await window.showQuickPick<QuickPickItem>(quickPickItems);
 
@@ -78,16 +77,12 @@ async function searchNote() {
     return;
   }
 
-  const selectedMarkdownFile = matchingMarkdownFiles.find((d) =>
-    d.path.endsWith(selected.label)
-  );
+  const selectedMarkdownFile = matchingMarkdownFiles.find((d) => d.path.endsWith(selected.label));
 
   if (selectedMarkdownFile === undefined) {
     window.showErrorMessage("Oops. Could not find matching file");
   } else {
-    const document = await workspace.openTextDocument(
-      Uri.file(selectedMarkdownFile.path)
-    );
+    const document = await workspace.openTextDocument(Uri.file(selectedMarkdownFile.path));
     await window.showTextDocument(document);
   }
 }
@@ -100,7 +95,7 @@ async function addTagNote() {
     return;
   }
   const content = editor.document.getText();
-  const { data } = matter(content);
+  const {data} = matter(content);
 
   const oldTags = data.tags ?? [];
 
@@ -128,7 +123,7 @@ function deleteNote() {
   }
 
   const content = editor.document.getText();
-  const { data } = matter(content);
+  const {data} = matter(content);
 
   if (data.deleted === true) {
     delete data.deleted;
@@ -139,21 +134,19 @@ function deleteNote() {
   updateFrontMatter(editor, data);
 }
 
-workspace.onWillSaveTextDocument(({ document }: TextDocumentWillSaveEvent) => {
+workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
   const editor = window.activeTextEditor;
 
   if (editor === undefined) {
     return;
   }
 
-  if (
-    document.languageId === "markdown" &&
-    document.uri.path === editor.document.uri.path
-  ) {
-    const content = document.getText();
-    const { data } = matter(content);
-    data.modified = new Date().toISOString();
-    updateFrontMatter(editor, data);
+  if (document.languageId === "markdown" && document.uri.path === editor.document.uri.path) {
+    const markdownDocument = new MarkdownDocument(document);
+    markdownDocument.save();
+
+    // const edit = new WorkspaceEdit();
+    // edit.renameFile(document.uri, this.targetPath, {overwrite: true});
   }
 });
 

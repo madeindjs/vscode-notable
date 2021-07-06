@@ -1,15 +1,6 @@
-import { promises } from "fs";
-import { basename, extname, join } from "path";
-import {
-  Progress,
-  ProgressLocation,
-  QuickPickItem,
-  Range,
-  SnippetString,
-  TextEditor,
-  window,
-  workspace,
-} from "vscode";
+import {promises} from "fs";
+import {basename, extname, join} from "path";
+import {Progress, ProgressLocation, QuickPickItem, Range, SnippetString, TextEditor, window, workspace} from "vscode";
 import matter = require("gray-matter");
 import yaml = require("yaml");
 const parse = require("markdown-to-ast").parse;
@@ -39,31 +30,23 @@ export function parseQuery(query: string): SearchNoteQuery {
 
   tags.forEach((tag) => (query = query.replace(`#${tag}`, "")));
 
-  return { tags, content: query };
+  return {tags, content: query};
 }
 
 async function getProgress(title: string): Promise<Progress<any>> {
   return await new Promise((resolve, reject) => {
-    window.withProgress(
-      { location: ProgressLocation.Notification, title, cancellable: false },
-      async (progress) => {
-        return resolve(progress);
-      }
-    );
+    window.withProgress({location: ProgressLocation.Notification, title, cancellable: false}, async (progress) => {
+      return resolve(progress);
+    });
   });
 }
 
-async function walk(
-  directory: string,
-  filepaths: string[] = []
-): Promise<string[]> {
+async function walk(directory: string, filepaths: string[] = []): Promise<string[]> {
   const files = await promises.readdir(directory);
   for (let filename of files) {
     const filepath = join(directory, filename);
 
-    const isDirectory = await promises
-      .stat(filepath)
-      .then((s) => s.isDirectory());
+    const isDirectory = await promises.stat(filepath).then((s) => s.isDirectory());
 
     if (isDirectory) {
       await walk(filepath, filepaths);
@@ -75,8 +58,8 @@ async function walk(
 }
 
 export async function openMarkdownFile(path: string): Promise<MarkdownFile> {
-  const content = await promises.readFile(path, { encoding: "utf8" });
-  const { data } = matter(content);
+  const content = await promises.readFile(path, {encoding: "utf8"});
+  const {data} = matter(content);
 
   return {
     path,
@@ -86,13 +69,13 @@ export async function openMarkdownFile(path: string): Promise<MarkdownFile> {
 }
 
 export async function getMarkdownFiles(
-  options: { showProgress: boolean } = { showProgress: false }
+  options: {showProgress: boolean} = {showProgress: false}
 ): Promise<MarkdownFile[]> {
   if (workspace.workspaceFolders === undefined) {
     return [];
   }
 
-  const { showProgress } = options;
+  const {showProgress} = options;
 
   const markdownFiles: MarkdownFile[] = [];
 
@@ -120,10 +103,7 @@ export function uniq<T>(array: T[]): T[] {
   return array.filter((v, i, a) => a.indexOf(v) === i);
 }
 
-export function isMarkdownFileMatchTag(
-  document: MarkdownFile,
-  queryTags: string[]
-): boolean {
+export function isMarkdownFileMatchTag(document: MarkdownFile, queryTags: string[]): boolean {
   if (queryTags.length === 0) {
     return true;
   }
@@ -135,16 +115,11 @@ export function isMarkdownFileMatchTag(
   }
 }
 
-export function isMarkdownFileMatchContent(
-  document: MarkdownFile,
-  content: string
-): boolean {
+export function isMarkdownFileMatchContent(document: MarkdownFile, content: string): boolean {
   return document.content.includes(content);
 }
 
-export function markdownFileToQuickPickItem(
-  document: MarkdownFile
-): QuickPickItem {
+export function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickItem {
   const tags: string[] = document.matter.tags ?? [];
   const ast = parse(document.content);
 
@@ -165,9 +140,7 @@ export function updateFrontMatter(editor: TextEditor, matterData: any): void {
 
   const ast = parse(content);
 
-  const titles = ast.children.filter(
-    (c: any) => c.type === "Header" && c.depth === 1
-  );
+  const titles = ast.children.filter((c: any) => c.type === "Header" && c.depth === 1);
 
   if (titles.length > 0) {
     const raw = titles[0].raw as string;
@@ -186,12 +159,8 @@ export function updateFrontMatter(editor: TextEditor, matterData: any): void {
     const snippet = new SnippetString(`${newMatter}\n`);
     editor.insertSnippet(snippet);
   } else {
-    const firstMatterPosition = editor.document.positionAt(
-      oldMatterNode.range[0]
-    );
-    const secondMatterPosition = editor.document.positionAt(
-      oldMatterNode.range[1]
-    );
+    const firstMatterPosition = editor.document.positionAt(oldMatterNode.range[0]);
+    const secondMatterPosition = editor.document.positionAt(oldMatterNode.range[1]);
     const range = new Range(firstMatterPosition, secondMatterPosition);
 
     editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
