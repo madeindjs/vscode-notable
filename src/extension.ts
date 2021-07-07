@@ -1,15 +1,5 @@
 import matter = require("gray-matter");
-import {
-  commands,
-  ExtensionContext,
-  Position,
-  QuickPickItem,
-  TextDocumentWillSaveEvent,
-  Uri,
-  window,
-  workspace,
-  WorkspaceEdit,
-} from "vscode";
+import {commands, ExtensionContext, QuickPickItem, TextDocumentWillSaveEvent, Uri, window, workspace} from "vscode";
 import {MarkdownDocument} from "./markdownDocument";
 import {
   getMarkdownFiles,
@@ -18,32 +8,10 @@ import {
   markdownFileToQuickPickItem,
   parseQuery,
   uniq,
-  updateFrontMatter,
 } from "./utils";
 
 function createNote() {
-  const defaultContent = `---
-title: Undefined
-tags: []
-created: '${new Date().toISOString()}'
-modified: '${new Date().toISOString()}'
----
-
-# Undefined
-
-`;
-  const newFile = Uri.parse(`untitled:untitled.md`);
-  workspace.openTextDocument(newFile).then((document) => {
-    const edit = new WorkspaceEdit();
-    edit.insert(newFile, new Position(0, 0), defaultContent);
-    return workspace.applyEdit(edit).then((success) => {
-      if (success) {
-        window.showTextDocument(document);
-      } else {
-        window.showInformationMessage("Error!");
-      }
-    });
-  });
+  return MarkdownDocument.create();
 }
 
 async function searchNote() {
@@ -94,13 +62,11 @@ async function addTagNote() {
     window.showErrorMessage("Please open an editor");
     return;
   }
-  const content = editor.document.getText();
-  const {data} = matter(content);
 
-  const oldTags = data.tags ?? [];
+  const mdDoc = new MarkdownDocument(editor.document);
 
   const newTagsStr = await window.showInputBox({
-    value: oldTags.join(","),
+    value: mdDoc.tags.join(","),
     prompt: "Enter one or many tags (separated by a comma)",
   });
 
@@ -109,9 +75,7 @@ async function addTagNote() {
     return;
   }
 
-  data.tags = uniq(newTagsStr.split(",").map((t) => t.trim()));
-
-  updateFrontMatter(editor, data);
+  mdDoc.tags = uniq(newTagsStr.split(",").map((t) => t.trim()));
 }
 
 function deleteNote() {
@@ -122,16 +86,8 @@ function deleteNote() {
     return;
   }
 
-  const content = editor.document.getText();
-  const {data} = matter(content);
-
-  if (data.deleted === true) {
-    delete data.deleted;
-  } else {
-    data.deleted = true;
-  }
-
-  updateFrontMatter(editor, data);
+  const mdDoc = new MarkdownDocument(editor.document);
+  mdDoc.toggleSafeDelete();
 }
 
 workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
@@ -143,10 +99,7 @@ workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
 
   if (document.languageId === "markdown" && document.uri.path === editor.document.uri.path) {
     const markdownDocument = new MarkdownDocument(document);
-    markdownDocument.save();
-
-    // const edit = new WorkspaceEdit();
-    // edit.renameFile(document.uri, this.targetPath, {overwrite: true});
+    markdownDocument.onSave();
   }
 });
 
