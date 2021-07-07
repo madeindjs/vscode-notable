@@ -23,7 +23,7 @@
     "commands": [
       {
         "command": "notable.createNote",
-        "title": "Notable: Create a new note"
+        "title": "Notable: Create a note"
       },
       {
         "command": "notable.searchNote",
@@ -40,6 +40,28 @@
         "title": "Notable: Safe delete a new note"
       }
     ],
+    "configuration": {
+      "title": "Notable",
+      "properties": {
+        "notable.onSaveDenyListFile": {
+          "type": "array",
+          "default": [
+            "README.md"
+          ],
+          "description": "Disable on save behavior for given files."
+        },
+        "notable.onSaveRenameFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rename file on save to filename match markdown title."
+        },
+        "notable.onSaveUpdateFrontMatter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Update YAML front matter on file saving (ex: `modified`, `title`)."
+        }
+      }
+    },
     "menus": {
       "explorer/context": []
     }
@@ -69,6 +91,7 @@
   "dependencies": {
     "gray-matter": "^4.0.2",
     "markdown-to-ast": "^6.0.3",
+    "sanitize-filename": "^1.6.3",
     "yaml": "^1.10.0"
   },
   "license": "MIT"

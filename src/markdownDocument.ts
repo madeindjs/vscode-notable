@@ -1,18 +1,104 @@
 import matter = require("gray-matter");
-import {Range, SnippetString, TextDocument, window} from "vscode";
+import {basename, dirname, extname, join} from "path";
+import {Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
+import {onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
+const sanitize = require("sanitize-filename");
 
 export class MarkdownDocument {
-  private frontMatterData: Object | undefined;
+  private frontMatterData: any | undefined;
   private ast: any | undefined;
 
-  constructor(public readonly document: TextDocument) {}
+  static async create() {
+    const defaultContent = `---
+title: Undefined
+tags: []
+created: '${new Date().toISOString()}'
+modified: '${new Date().toISOString()}'
+---
 
-  save() {
-    this.updateFrontMatter({modified: new Date().toISOString()});
-    // const edit = new WorkspaceEdit();
-    // edit.renameFile(document.uri, this.targetPath, {overwrite: true});
+# Undefined
+
+`;
+    const newFile = Uri.parse(`untitled:untitled.md`);
+    const document = await workspace.openTextDocument(newFile);
+
+    const edit = new WorkspaceEdit();
+    edit.insert(newFile, new Position(0, 0), defaultContent);
+    await workspace.applyEdit(edit).then((success) => {
+      if (success) {
+        window.showTextDocument(document);
+      } else {
+        window.showInformationMessage("Error!");
+      }
+    });
+
+    return new MarkdownDocument(document);
+  }
+
+  constructor(public readonly document: TextDocument) {
+    this.parse();
+  }
+
+  get tags(): string[] {
+    return this.frontMatterData.tags ?? [];
+  }
+
+  set tags(tags: string[]) {
+    this.updateFrontMatter({tags});
+  }
+
+  async onSave() {
+    if (this.isOnSaveDenyList) {
+      return;
+    }
+
+    const title = this.getCurrentTitle();
+    this.updateFrontMatter({modified: new Date().toISOString(), title});
+    await this.renameMarkdownFile();
+  }
+
+  toggleSafeDelete() {
+    const data = this.frontMatterData;
+
+    if (data.deleted === true) {
+      delete data.deleted;
+    } else {
+      data.deleted = true;
+    }
+    this.updateFrontMatter(data);
+  }
+
+  get isOnSaveDenyList() {
+    if (onSaveDenyListFile === undefined) {
+      return false;
+    }
+
+    const filename = basename(this.document.uri.path);
+
+    return onSaveDenyListFile.includes(filename);
+  }
+
+  private async renameMarkdownFile() {
+    if (!onSaveRenameFile) {
+      console.log("Skip renaming markdown file because of configuration");
+    }
+    const title = this.getCurrentTitle();
+    const folderPath = dirname(this.document.uri.path);
+
+    if (!title) {
+      return;
+    }
+
+    const filename = sanitize(title);
+    const extension = extname(this.document.uri.path);
+
+    const newUri = Uri.parse(join(folderPath, `${filename}${extension}`));
+
+    const edit = new WorkspaceEdit();
+    edit.renameFile(this.document.uri, newUri, {overwrite: true});
+    await workspace.applyEdit(edit);
   }
 
   private parse() {
@@ -22,7 +108,7 @@ export class MarkdownDocument {
     this.frontMatterData = matter(content).data;
   }
 
-  getCurrentTitle(): string | undefined {
+  private getCurrentTitle(): string | undefined {
     const ast = parse(this.document.getText());
 
     const titles = ast.children.filter((c: any) => c.type === "Header" && c.depth === 1);
@@ -35,10 +121,19 @@ export class MarkdownDocument {
       }
       return raw.replace("# ", "");
     }
+
+    if (this.frontMatterData?.title !== undefined) {
+      return this.frontMatterData?.title;
+    }
+
     return undefined;
   }
 
-  updateFrontMatter(matterData: any): void {
+  private updateFrontMatter(matterData: any): void {
+    if (!onSaveUpdateFrontMatter) {
+      console.log("Skip updating frontmatter because of configuration");
+    }
+
     // TODO find a better way
     const editor = window.activeTextEditor;
 
@@ -54,12 +149,6 @@ export class MarkdownDocument {
 
     matterData = {...this.frontMatterData, ...matterData};
 
-    const title = this.getCurrentTitle();
-
-    if (title !== undefined) {
-      matterData.title = title;
-    }
-
     const oldMatterNode = this.ast.children.filter((c: any) => c.type === "Yaml")[0];
 
     const newMatter = `---\n${yaml.stringify(matterData)}---`;
@@ -74,5 +163,7 @@ export class MarkdownDocument {
 
       editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
     }
+
+    this.parse();
   }
 }
