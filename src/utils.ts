@@ -1,8 +1,7 @@
 import {promises} from "fs";
 import {basename, extname, join} from "path";
-import {Progress, ProgressLocation, QuickPickItem, Range, SnippetString, TextEditor, window, workspace} from "vscode";
+import {Progress, ProgressLocation, QuickPickItem, window, workspace} from "vscode";
 import matter = require("gray-matter");
-import yaml = require("yaml");
 const parse = require("markdown-to-ast").parse;
 
 const MD_EXTENSIONS = [".md", ".markdown"];
@@ -133,36 +132,4 @@ export function markdownFileToQuickPickItem(document: MarkdownFile): QuickPickIt
     description: tags.map((t) => `#${t}`).join(", "),
     detail,
   };
-}
-
-export function updateFrontMatter(editor: TextEditor, matterData: any): void {
-  const content = editor.document.getText();
-
-  const ast = parse(content);
-
-  const titles = ast.children.filter((c: any) => c.type === "Header" && c.depth === 1);
-
-  if (titles.length > 0) {
-    const raw = titles[0].raw as string;
-    // not support other syntax than `# title`
-    if (!raw.startsWith("# ")) {
-      return;
-    }
-    matterData.title = raw.replace("# ", "");
-  }
-
-  const oldMatterNode = ast.children.filter((c: any) => c.type === "Yaml")[0];
-
-  const newMatter = `---\n${yaml.stringify(matterData)}---`;
-
-  if (oldMatterNode === undefined) {
-    const snippet = new SnippetString(`${newMatter}\n`);
-    editor.insertSnippet(snippet);
-  } else {
-    const firstMatterPosition = editor.document.positionAt(oldMatterNode.range[0]);
-    const secondMatterPosition = editor.document.positionAt(oldMatterNode.range[1]);
-    const range = new Range(firstMatterPosition, secondMatterPosition);
-
-    editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
-  }
 }
