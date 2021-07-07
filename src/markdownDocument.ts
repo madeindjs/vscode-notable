@@ -1,7 +1,7 @@
 import matter = require("gray-matter");
-import {dirname, extname, join} from "path";
+import {basename, dirname, extname, join} from "path";
 import {Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
-import {onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
+import {onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
 const sanitize = require("sanitize-filename");
@@ -49,7 +49,11 @@ modified: '${new Date().toISOString()}'
     this.updateFrontMatter({tags});
   }
 
-  async save() {
+  async onSave() {
+    if (this.isOnSaveDenyList) {
+      return;
+    }
+
     const title = this.getCurrentTitle();
     this.updateFrontMatter({modified: new Date().toISOString(), title});
     await this.renameMarkdownFile();
@@ -66,6 +70,16 @@ modified: '${new Date().toISOString()}'
     this.updateFrontMatter(data);
   }
 
+  get isOnSaveDenyList() {
+    if (onSaveDenyListFile === undefined) {
+      return false;
+    }
+
+    const filename = basename(this.document.uri.path);
+
+    return onSaveDenyListFile.includes(filename);
+  }
+
   private async renameMarkdownFile() {
     if (!onSaveRenameFile) {
       console.log("Skip renaming markdown file because of configuration");
@@ -73,7 +87,10 @@ modified: '${new Date().toISOString()}'
     const title = this.getCurrentTitle();
     const folderPath = dirname(this.document.uri.path);
 
-    // TODO handle if undefined
+    if (!title) {
+      return;
+    }
+
     const filename = sanitize(title);
     const extension = extname(this.document.uri.path);
 

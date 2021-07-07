@@ -43,6 +43,13 @@
     "configuration": {
       "title": "Notable",
       "properties": {
+        "notable.onSaveDenyListFile": {
+          "type": "array",
+          "default": [
+            "README.md"
+          ],
+          "description": "Disable on save behavior for given files."
+        },
         "notable.onSaveRenameFile": {
           "type": "boolean",
           "default": true,
