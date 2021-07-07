@@ -144,9 +144,6 @@ workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
   if (document.languageId === "markdown" && document.uri.path === editor.document.uri.path) {
     const markdownDocument = new MarkdownDocument(document);
     markdownDocument.save();
-
-    // const edit = new WorkspaceEdit();
-    // edit.renameFile(document.uri, this.targetPath, {overwrite: true});
   }
 });
 

@@ -23,7 +23,7 @@
     "commands": [
       {
         "command": "notable.createNote",
-        "title": "Notable: Create a new note"
+        "title": "Notable: Create a note"
       },
       {
         "command": "notable.searchNote",
