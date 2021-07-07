@@ -34,7 +34,7 @@ Other
 - [ ] add panel view with all tags
 - [x] add search
 - [ ] add mermaid support
-- [ ] settings page to enable extension only for given workspace
+- [x] settings page to enable extension only for given workspace
 
 ## Installation
 

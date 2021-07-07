@@ -40,6 +40,21 @@
         "title": "Notable: Safe delete a new note"
       }
     ],
+    "configuration": {
+      "title": "Notable",
+      "properties": {
+        "notable.onSaveRenameFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rename file on save to filename match markdown title."
+        },
+        "notable.onSaveUpdateFrontMatter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Update YAML front matter on file saving (ex: `modified`, `title`)."
+        }
+      }
+    },
     "menus": {
       "explorer/context": []
     }

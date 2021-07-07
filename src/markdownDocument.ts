@@ -1,6 +1,7 @@
 import matter = require("gray-matter");
 import {dirname, extname, join} from "path";
 import {Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
+import {onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
 const sanitize = require("sanitize-filename");
@@ -16,7 +17,14 @@ export class MarkdownDocument {
   async save() {
     const title = this.getCurrentTitle();
     this.updateFrontMatter({modified: new Date().toISOString(), title});
+    await this.renameMarkdownFile();
+  }
 
+  private async renameMarkdownFile() {
+    if (!onSaveRenameFile) {
+      console.log("Skip renaming markdown file because of configuration");
+    }
+    const title = this.getCurrentTitle();
     const folderPath = dirname(this.document.uri.path);
 
     // TODO handle if undefined
@@ -24,8 +32,6 @@ export class MarkdownDocument {
     const extension = extname(this.document.uri.path);
 
     const newUri = Uri.parse(join(folderPath, `${filename}${extension}`));
-
-    // Uri.joinPath(this.document.uri.path)
 
     const edit = new WorkspaceEdit();
     edit.renameFile(this.document.uri, newUri, {overwrite: true});
@@ -39,7 +45,7 @@ export class MarkdownDocument {
     this.frontMatterData = matter(content).data;
   }
 
-  getCurrentTitle(): string | undefined {
+  private getCurrentTitle(): string | undefined {
     const ast = parse(this.document.getText());
 
     const titles = ast.children.filter((c: any) => c.type === "Header" && c.depth === 1);
@@ -60,7 +66,11 @@ export class MarkdownDocument {
     return undefined;
   }
 
-  updateFrontMatter(matterData: any): void {
+  private updateFrontMatter(matterData: any): void {
+    if (!onSaveUpdateFrontMatter) {
+      console.log("Skip updating frontmatter because of configuration");
+    }
+
     // TODO find a better way
     const editor = window.activeTextEditor;
 
