@@ -1,8 +1,3 @@
----
-modified: 2021-02-14T21:35:00.286Z
-title: Notable for VScode
----
-
 # Notable for VScode
 
 VSCode plugin to take Markdown notes following [Notable](https://notable.app/) format.
