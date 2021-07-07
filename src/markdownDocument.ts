@@ -1,6 +1,6 @@
 import matter = require("gray-matter");
 import {dirname, extname, join} from "path";
-import {Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
+import {Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
 import {onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
@@ -10,14 +10,60 @@ export class MarkdownDocument {
   private frontMatterData: any | undefined;
   private ast: any | undefined;
 
+  static async create() {
+    const defaultContent = `---
+title: Undefined
+tags: []
+created: '${new Date().toISOString()}'
+modified: '${new Date().toISOString()}'
+---
+
+# Undefined
+
+`;
+    const newFile = Uri.parse(`untitled:untitled.md`);
+    const document = await workspace.openTextDocument(newFile);
+
+    const edit = new WorkspaceEdit();
+    edit.insert(newFile, new Position(0, 0), defaultContent);
+    await workspace.applyEdit(edit).then((success) => {
+      if (success) {
+        window.showTextDocument(document);
+      } else {
+        window.showInformationMessage("Error!");
+      }
+    });
+
+    return new MarkdownDocument(document);
+  }
+
   constructor(public readonly document: TextDocument) {
     this.parse();
+  }
+
+  get tags(): string[] {
+    return this.frontMatterData.tags ?? [];
+  }
+
+  set tags(tags: string[]) {
+    this.updateFrontMatter({tags});
   }
 
   async save() {
     const title = this.getCurrentTitle();
     this.updateFrontMatter({modified: new Date().toISOString(), title});
     await this.renameMarkdownFile();
+  }
+
+  toggleSafeDelete() {
+    const data = this.frontMatterData;
+
+    if (data.deleted === true) {
+      delete data.deleted;
+    } else {
+      data.deleted = true;
+    }
+    this.updateFrontMatter(data);
   }
 
   private async renameMarkdownFile() {
@@ -100,5 +146,7 @@ export class MarkdownDocument {
 
       editor.edit((editBuilder) => editBuilder.replace(range, newMatter));
     }
+
+    this.parse();
   }
 }
