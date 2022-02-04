@@ -14,6 +14,17 @@ function createNote() {
   return MarkdownDocument.create();
 }
 
+async function addFrontmatter() {
+  const editor = window.activeTextEditor;
+
+  if (editor === undefined) {
+    window.showErrorMessage("Please open an editor");
+    return;
+  }
+
+  new MarkdownDocument(editor.document).createFrontMatter();
+}
+
 async function searchNote() {
   const queryStr = await window.showInputBox({
     prompt: "What do you search",
@@ -107,6 +118,7 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("notable.createNote", createNote),
     commands.registerCommand("notable.addTagNote", addTagNote),
+    commands.registerCommand("notable.addFrontmatter", addFrontmatter),
     commands.registerCommand("notable.safeDeleteNote", deleteNote),
     commands.registerCommand("notable.searchNote", searchNote)
   );

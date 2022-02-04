@@ -4,7 +4,7 @@ import {Position, Range, SnippetString, TextDocument, Uri, window, workspace, Wo
 import {onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
-const sanitize = require("sanitize-filename");
+import sanitize = require("sanitize-filename");
 
 export class MarkdownDocument {
   private frontMatterData: any | undefined;
@@ -68,6 +68,19 @@ modified: '${new Date().toISOString()}'
       data.deleted = true;
     }
     this.updateFrontMatter(data);
+  }
+
+  createFrontMatter() {
+    const data = this.frontMatterData
+
+    if (Object.entries(data).length ===  0) {
+      const title = this.getCurrentTitle();
+      data.title = title !== undefined ? title : 'Undefined'
+      data.tags = [];
+      data.created= new Date().toISOString();
+      data.modified= new Date().toISOString();
+      this.updateFrontMatter(data);
+    }
   }
 
   get isOnSaveDenyList() {

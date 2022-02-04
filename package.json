@@ -36,6 +36,11 @@
       },
       {
         "when": "resourceLangId == md",
+        "command": "notable.addFrontmatter",
+        "title": "Notable: Add Frontmatter"
+      },
+      {
+        "when": "resourceLangId == md",
         "command": "notable.safeDeleteNote",
         "title": "Notable: Safe delete a new note"
       }
