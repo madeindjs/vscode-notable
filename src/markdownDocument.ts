@@ -154,8 +154,8 @@ modified: '${new Date().toISOString()}'
     const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
     if (oldMatterNode === undefined) {
-      const snippet = new SnippetString(`${newMatter}\n`);
-      editor.insertSnippet(snippet);
+      const snippet = new SnippetString(`${newMatter}\n\n`);
+      editor.insertSnippet(snippet, new Position(0, 0));
     } else {
       const firstMatterPosition = editor.document.positionAt(oldMatterNode.range[0]);
       const secondMatterPosition = editor.document.positionAt(oldMatterNode.range[1]);
