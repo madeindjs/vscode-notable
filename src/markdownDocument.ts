@@ -1,10 +1,12 @@
 import matter = require("gray-matter");
-import {basename, dirname, extname, join} from "path";
-import {Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit} from "vscode";
-import {onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter} from "./config";
+import { basename, dirname, extname, join } from "path";
+import { Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit } from "vscode";
+import { onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter } from "./config";
 const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
-import sanitize = require("sanitize-filename");
+import path = require("path");
+
+const sanitize = require("sanitize-filename");
 
 export class MarkdownDocument {
   private frontMatterData: any | undefined;
@@ -21,7 +23,8 @@ modified: '${new Date().toISOString()}'
 # Undefined
 
 `;
-    const newFile = Uri.parse(`untitled:untitled.md`);
+    const folder = workspace.workspaceFolders?.length ? workspace.workspaceFolders[0].uri.fsPath : process.cwd();
+    const newFile = Uri.parse(`untitled:${path.join(folder, "untitled.md")}`);
     const document = await workspace.openTextDocument(newFile);
 
     const edit = new WorkspaceEdit();
@@ -46,7 +49,7 @@ modified: '${new Date().toISOString()}'
   }
 
   set tags(tags: string[]) {
-    this.updateFrontMatter({tags});
+    this.updateFrontMatter({ tags });
   }
 
   async onSave() {
@@ -55,7 +58,7 @@ modified: '${new Date().toISOString()}'
     }
 
     const title = this.getCurrentTitle();
-    this.updateFrontMatter({modified: new Date().toISOString(), title});
+    this.updateFrontMatter({ modified: new Date().toISOString(), title });
     await this.renameMarkdownFile();
   }
 
@@ -110,7 +113,7 @@ modified: '${new Date().toISOString()}'
     const newUri = Uri.parse(join(folderPath, `${filename}${extension}`));
 
     const edit = new WorkspaceEdit();
-    edit.renameFile(this.document.uri, newUri, {overwrite: true});
+    edit.renameFile(this.document.uri, newUri, { overwrite: true });
     await workspace.applyEdit(edit);
   }
 
@@ -160,15 +163,15 @@ modified: '${new Date().toISOString()}'
       throw Error("AST could not be parsed");
     }
 
-    matterData = {...this.frontMatterData, ...matterData};
+    matterData = { ...this.frontMatterData, ...matterData };
 
     const oldMatterNode = this.ast.children.filter((c: any) => c.type === "Yaml")[0];
 
     const newMatter = `---\n${yaml.stringify(matterData)}---`;
 
     if (oldMatterNode === undefined) {
-      const snippet = new SnippetString(`${newMatter}\n`);
-      editor.insertSnippet(snippet);
+      const snippet = new SnippetString(`${newMatter}\n\n`);
+      editor.insertSnippet(snippet, new Position(0, 0));
     } else {
       const firstMatterPosition = editor.document.positionAt(oldMatterNode.range[0]);
       const secondMatterPosition = editor.document.positionAt(oldMatterNode.range[1]);

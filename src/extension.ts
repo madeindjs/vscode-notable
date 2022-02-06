@@ -1,6 +1,5 @@
-import matter = require("gray-matter");
-import {commands, ExtensionContext, QuickPickItem, TextDocumentWillSaveEvent, Uri, window, workspace} from "vscode";
-import {MarkdownDocument} from "./markdownDocument";
+import { commands, ExtensionContext, QuickPickItem, TextDocumentWillSaveEvent, Uri, window, workspace } from "vscode";
+import { MarkdownDocument } from "./markdownDocument";
 import {
   getMarkdownFiles,
   isMarkdownFileMatchContent,
@@ -37,7 +36,7 @@ async function searchNote() {
 
   const query = parseQuery(queryStr);
 
-  const markdownFiles = await getMarkdownFiles({showProgress: true});
+  const markdownFiles = await getMarkdownFiles({ showProgress: true });
 
   const matchingMarkdownFiles = markdownFiles
     .filter((document) => isMarkdownFileMatchTag(document, query.tags))
@@ -101,7 +100,7 @@ function deleteNote() {
   mdDoc.toggleSafeDelete();
 }
 
-workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
+workspace.onWillSaveTextDocument(({ document }: TextDocumentWillSaveEvent) => {
   const editor = window.activeTextEditor;
 
   if (editor === undefined) {
@@ -115,6 +114,7 @@ workspace.onWillSaveTextDocument(({document}: TextDocumentWillSaveEvent) => {
 });
 
 export async function activate(context: ExtensionContext) {
+  console.log("activate");
   context.subscriptions.push(
     commands.registerCommand("notable.createNote", createNote),
     commands.registerCommand("notable.addTagNote", addTagNote),

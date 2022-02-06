@@ -1,3 +1,5 @@
+:warning: This repo is unmaintained it's only used to file pull request :warning:
+
 # Notable for VScode
 
 VSCode plugin to take Markdown notes following [Notable](https://notable.app/) format.
