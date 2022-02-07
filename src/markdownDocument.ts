@@ -73,14 +73,14 @@ modified: '${new Date().toISOString()}'
     this.updateFrontMatter(data);
   }
 
-  createFrontMatter() {
+  createFrontMatter(ctime: Date) {
     const data = this.frontMatterData;
 
     if (Object.entries(data).length ===  0) {
       const title = this.getCurrentTitle();
       data.title = title !== undefined ? title : 'Undefined';
       data.tags = [];
-      data.created= new Date().toISOString();
+      data.created= ctime;
       data.modified= new Date().toISOString();
       this.updateFrontMatter(data);
     } else {

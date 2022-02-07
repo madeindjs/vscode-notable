@@ -21,7 +21,10 @@ async function addFrontmatter() {
     return;
   }
 
-  new MarkdownDocument(editor.document).createFrontMatter();
+  // get creation time of file from FileSystem.stat
+  // some/most fs do not store the creation time, so this date will potentially be the last modified date
+  const stats = await workspace.fs.stat(editor.document.uri)
+  new MarkdownDocument(editor.document).createFrontMatter(new Date(stats.ctime));
 }
 
 async function searchNote() {
