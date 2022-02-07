@@ -73,6 +73,21 @@ modified: '${new Date().toISOString()}'
     this.updateFrontMatter(data);
   }
 
+  createFrontMatter(ctime: Date) {
+    const data = this.frontMatterData;
+
+    if (Object.entries(data).length ===  0) {
+      const title = this.getCurrentTitle();
+      data.title = title !== undefined ? title : 'Undefined';
+      data.tags = [];
+      data.created= ctime;
+      data.modified= new Date().toISOString();
+      this.updateFrontMatter(data);
+    } else {
+      window.showInformationMessage("Nothing to do. The file already has FrontMatter.");
+    }
+  }
+
   get isOnSaveDenyList() {
     if (onSaveDenyListFile === undefined) {
       return false;

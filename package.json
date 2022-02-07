@@ -3,7 +3,7 @@
   "displayName": "Notable",
   "description": "Create, edit and search Markdown notes from Notable.",
   "icon": "images/logo.png",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.46.0"
   },
@@ -33,6 +33,11 @@
         "when": "resourceLangId == md",
         "command": "notable.addTagNote",
         "title": "Notable: Edit tags"
+      },
+      {
+        "when": "resourceLangId == md",
+        "command": "notable.addFrontmatter",
+        "title": "Notable: Add Frontmatter"
       },
       {
         "when": "resourceLangId == md",
