@@ -4,9 +4,9 @@ All notable changes to the "md-tags" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## Unreleased
+## v0.3.0
 
-- add function to add FrontMatter to file when there is none 
+- feat: Add FrontMatter to existing file, when there is none [#7](https://github.com/madeindjs/vscode-notable/pull/7)
 
 ## v0.2.2
 
