@@ -74,15 +74,17 @@ modified: '${new Date().toISOString()}'
   }
 
   createFrontMatter() {
-    const data = this.frontMatterData
+    const data = this.frontMatterData;
 
     if (Object.entries(data).length ===  0) {
       const title = this.getCurrentTitle();
-      data.title = title !== undefined ? title : 'Undefined'
+      data.title = title !== undefined ? title : 'Undefined';
       data.tags = [];
       data.created= new Date().toISOString();
       data.modified= new Date().toISOString();
       this.updateFrontMatter(data);
+    } else {
+      window.showInformationMessage("Nothing to do. The file already has FrontMatter.");
     }
   }
 

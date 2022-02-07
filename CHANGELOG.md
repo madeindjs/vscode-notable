@@ -4,6 +4,10 @@ All notable changes to the "md-tags" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## v0.2.2
+
+- add function to add FrontMatter to file when there is none 
+
 ## v0.2.1
 
 - create note now create in workspace
