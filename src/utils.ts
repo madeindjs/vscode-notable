@@ -2,7 +2,7 @@ import {promises} from "fs";
 import {basename, extname, join} from "path";
 import {Progress, ProgressLocation, QuickPickItem, window, workspace} from "vscode";
 import matter = require("gray-matter");
-const parse = require("markdown-to-ast").parse;
+const parse = require("@textlint/markdown-to-ast").parse;
 
 const MD_EXTENSIONS = [".md", ".markdown"];
 
