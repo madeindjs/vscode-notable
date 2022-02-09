@@ -4,6 +4,10 @@ All notable changes to the "md-tags" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## v0.3.1
+
+-fix: upgrade librairies [#9](https://github.com/madeindjs/vscode-notable/pull/9)
+
 ## v0.3.0
 
 - feat: Add FrontMatter to existing file, when there is none [#7](https://github.com/madeindjs/vscode-notable/pull/7)
