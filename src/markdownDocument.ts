@@ -2,10 +2,10 @@ import matter = require("gray-matter");
 import { basename, dirname, extname, join } from "path";
 import { Position, Range, SnippetString, TextDocument, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import { onSaveDenyListFile, onSaveRenameFile, onSaveUpdateFrontMatter } from "./config";
-const parse = require("markdown-to-ast").parse;
 import yaml = require("yaml");
 import path = require("path");
 
+const parse = require("@textlint/markdown-to-ast").parse;
 const sanitize = require("sanitize-filename");
 
 export class MarkdownDocument {
