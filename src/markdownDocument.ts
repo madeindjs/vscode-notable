@@ -101,6 +101,7 @@ modified: '${new Date().toISOString()}'
   private async renameMarkdownFile() {
     if (!onSaveRenameFile) {
       console.log("Skip renaming markdown file because of configuration");
+      return;
     }
     const title = this.getCurrentTitle();
     const folderPath = dirname(this.document.uri.path);
@@ -150,6 +151,7 @@ modified: '${new Date().toISOString()}'
   private updateFrontMatter(matterData: any): void {
     if (!onSaveUpdateFrontMatter) {
       console.log("Skip updating frontmatter because of configuration");
+      return;
     }
 
     // TODO find a better way
