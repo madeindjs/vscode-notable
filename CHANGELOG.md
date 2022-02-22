@@ -1,12 +1,12 @@
 # Change Log
 
-All notable changes to the "md-tags" extension will be documented in this file.
+## Unreleased
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- fix: on save settings [#12](https://github.com/madeindjs/vscode-notable/pull/12)
 
 ## v0.3.1
 
--fix: upgrade librairies [#9](https://github.com/madeindjs/vscode-notable/pull/9)
+- fix: upgrade librairies [#9](https://github.com/madeindjs/vscode-notable/pull/9)
 
 ## v0.3.0
 
