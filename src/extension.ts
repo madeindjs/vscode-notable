@@ -103,18 +103,18 @@ function deleteNote() {
   mdDoc.toggleSafeDelete();
 }
 
-workspace.onWillSaveTextDocument(({ document }: TextDocumentWillSaveEvent) => {
+function onWillSave(e: TextDocumentWillSaveEvent): void {
   const editor = window.activeTextEditor;
 
   if (editor === undefined) {
     return;
   }
 
-  if (document.languageId === "markdown" && document.uri.path === editor.document.uri.path) {
-    const markdownDocument = new MarkdownDocument(document);
-    markdownDocument.onSave();
+  if (e.document.languageId === 'markdown'  && e.document.uri.path === editor.document.uri.path) {
+      const markdownDocument = new MarkdownDocument(e.document);
+      e.waitUntil(markdownDocument.onSave());
   }
-});
+}
 
 export async function activate(context: ExtensionContext) {
   console.log("activate");
@@ -123,8 +123,9 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand("notable.addTagNote", addTagNote),
     commands.registerCommand("notable.addFrontmatter", addFrontmatter),
     commands.registerCommand("notable.safeDeleteNote", deleteNote),
-    commands.registerCommand("notable.searchNote", searchNote)
+    commands.registerCommand("notable.searchNote", searchNote),
+    workspace.onWillSaveTextDocument(onWillSave),
   );
 }
 
-export function deactivate() {}
+export function deactivate() { }
