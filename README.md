@@ -22,7 +22,7 @@ on save
 
 - [x] update `modified` front mater on save note
 - [x] update `title`
-- [ ] rename file on title update
+- [x] rename file on title update
 
 Other
 
