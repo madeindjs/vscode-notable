@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.3.2
+
 - fix: on save settings [#12](https://github.com/madeindjs/vscode-notable/pull/12)
 
 ## v0.3.1
